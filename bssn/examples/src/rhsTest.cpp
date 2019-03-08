@@ -3,6 +3,16 @@
 // Created by milinda on 8/20/18.
 //
 #include "rhsTest.h"
+#include <papi.h>
+
+int event_set = PAPI_NULL;
+long_long values[3] = {};
+#define CHK_ERR(a)				\
+  {						\
+  int status;					\
+  status = a;					\
+  assert(status == PAPI_OK);			\
+  }
 
 int main(int argc, char **argv)
 {
@@ -12,6 +22,17 @@ int main(int argc, char **argv)
         std::cout << "Usage: " << argv[0] << " low_level high_level numBlocks mode(unstaged=0 staged=1)" << std::endl;
         return 0;
     }
+    if (PAPI_VER_CURRENT != PAPI_library_init(PAPI_VER_CURRENT)) {
+      std::cout << "Error in initializing papi!" << std::endl;
+      return -1;
+    }
+    CHK_ERR(PAPI_create_eventset(&event_set));
+    CHK_ERR(PAPI_add_event(event_set, PAPI_L1_DCM));
+    CHK_ERR(PAPI_add_event(event_set, PAPI_L2_DCM));
+    CHK_ERR(PAPI_add_event(event_set, PAPI_L3_TCM));
+    CHK_ERR(PAPI_add_event(event_set, PAPI_LD_INS));
+    CHK_ERR(PAPI_add_event(event_set, PAPI_SR_INS));
+
 
     int rank = 0, npes = 1;
 
@@ -254,7 +275,22 @@ int main(int argc, char **argv)
         std::cout << "Derivative  time : " << bssn::timer::t_deriv.seconds << std::endl;
         std::cout << "RHS         time : " << bssn::timer::t_rhs.seconds << std::endl;
     }
-
+    std::cout << "l1 misses," << "l2 misses," << "l3 misses," << "loads," << "stores" << std::endl
+	      <<        values[0] << ", "
+	      <<	values[1] << ", "
+	      <<	values[2] << ", "
+	      <<	values[3] << ", "
+	      <<	values[4] << std::endl;
+    {
+      bool first = true;
+      // for (int i = 0; i < 5; ++i) {
+      // 	// if (!first)
+      // 	//   std::cout << ", ";
+      // 	// first = false;
+      // 	std::cout << values[i] << ", ";
+      // }
+    }
+    std::cout << std::endl;
     /*double l_inf;
     for (unsigned int var = 0; var < bssn::BSSN_NUM_VARS; var++)
     {

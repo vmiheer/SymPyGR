@@ -1,8 +1,17 @@
 #include "rhs.h"
+#include <papi.h>
 
-
+extern int event_set;
+#define CHK_ERR(a)				\
+  {						\
+  int status;					\
+  status = a;					\
+  assert(status == PAPI_OK);			\
+  }
+extern long_long values[2];
 using namespace std;
 using namespace bssn;
+
 
 /*----------------------------------------------------------------------;
  *
@@ -588,6 +597,7 @@ void bssnrhs(double **unzipVarsRHS, const double **uZipVars,
     double eta;
 
     //cout << "begin loop" << endl;
+    CHK_ERR(PAPI_start(event_set));
     for (unsigned int k = 3; k < nz-3; k++) {
         z = pmin[2] + k*hz;
 
@@ -2714,6 +2724,7 @@ void bssnrhs(double **unzipVarsRHS, const double **uZipVars,
             }
         }
     }
+    CHK_ERR(PAPI_stop(event_set, values));
 
 
     if (bflag != 0) {
