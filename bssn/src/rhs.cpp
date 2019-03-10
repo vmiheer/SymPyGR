@@ -8,7 +8,7 @@ extern int event_set;
   status = a;					\
   assert(status == PAPI_OK);			\
   }
-extern long_long values[2];
+extern long_long values[6];
 using namespace std;
 using namespace bssn;
 
@@ -598,6 +598,10 @@ void bssnrhs(double **unzipVarsRHS, const double **uZipVars,
 
     //cout << "begin loop" << endl;
     CHK_ERR(PAPI_start(event_set));
+    memset(values, 0, sizeof(values) * sizeof(values[0]));
+    // Let's just measure for the last call to this function
+    bssn::timer::t_rhs.clear();
+    // int numIters = 0;
     for (unsigned int k = 3; k < nz-3; k++) {
         z = pmin[2] + k*hz;
 
@@ -605,6 +609,7 @@ void bssnrhs(double **unzipVarsRHS, const double **uZipVars,
             y = pmin[1] + j*hy;
 
             for (unsigned int i = 3; i < nx-3; i++) {
+	        // ++numIters;
                 x = pmin[0] + i*hx;
                 pp = i + nx*(j + ny*k);
                 r_coord = sqrt(x*x + y*y + z*z);
@@ -2725,6 +2730,7 @@ void bssnrhs(double **unzipVarsRHS, const double **uZipVars,
         }
     }
     CHK_ERR(PAPI_stop(event_set, values));
+    // std::cout << "numIters: " << numIters << std::endl;
 
 
     if (bflag != 0) {

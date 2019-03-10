@@ -6,7 +6,7 @@
 #include <papi.h>
 
 int event_set = PAPI_NULL;
-long_long values[3] = {};
+long_long values[6] = {};
 #define CHK_ERR(a)				\
   {						\
   int status;					\
@@ -32,6 +32,7 @@ int main(int argc, char **argv)
     CHK_ERR(PAPI_add_event(event_set, PAPI_L3_TCM));
     CHK_ERR(PAPI_add_event(event_set, PAPI_LD_INS));
     CHK_ERR(PAPI_add_event(event_set, PAPI_SR_INS));
+    CHK_ERR(PAPI_add_event(event_set, PAPI_RES_STL));
 
 
     int rank = 0, npes = 1;
@@ -275,12 +276,13 @@ int main(int argc, char **argv)
         std::cout << "Derivative  time : " << bssn::timer::t_deriv.seconds << std::endl;
         std::cout << "RHS         time : " << bssn::timer::t_rhs.seconds << std::endl;
     }
-    std::cout << "l1 misses," << "l2 misses," << "l3 misses," << "loads," << "stores" << std::endl
+    std::cout << "l1 misses," << "l2 misses," << "l3 misses," << "loads," << "stores," << "stalls" << std::endl
 	      <<        values[0] << ", "
 	      <<	values[1] << ", "
 	      <<	values[2] << ", "
 	      <<	values[3] << ", "
-	      <<	values[4] << std::endl;
+	      <<	values[4] << ", "
+	      <<        values[5] << std::endl;
     {
       bool first = true;
       // for (int i = 0; i < 5; ++i) {
